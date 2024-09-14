@@ -4,49 +4,202 @@ Challenge 14 - Daved Strzykalski
 
 ## Your Task
 
-As you have progressed through this course, you have put together a number of impressive projects that you can show off to potential employers. This project is no exception; in fact, it features some of the most impressive expressions of the concepts you have learned so far.
+MongoDB is a popular choice for many social networks due to its speed with large amounts of data and flexibility with unstructured data. Over the last part of this course, you’ll use several of the technologies that social networking platforms use in their full-stack applications. Because the foundation of these applications is data, it’s important that you understand how to build and structure the API first.
 
-Your task is to build a text editor that runs in the browser. The app will be a single-page application that meets the PWA criteria. Additionally, it will feature a number of data persistence techniques that serve as redundancy in case one of the options is not supported by the browser. The application will also function offline.
+Your Challenge is to build an API for a social network web application where users can share their thoughts, react to friends’ thoughts, and create a friend list. You’ll use Express.js for routing, a MongoDB database, and the Mongoose ODM. In addition to using the [Express.js](https://www.npmjs.com/package/express) and [Mongoose](https://www.npmjs.com/package/mongoose) packages, you may also optionally use a JavaScript date library of your choice or the native JavaScript `Date` object to format timestamps.
 
-To build this text editor, you will start with an existing application and implement methods for getting and storing data to an IndexedDB database. You will use a package called `idb`, which is a lightweight wrapper around the IndexedDB API. It features a number of methods that are useful for storing and retrieving data, and is used by companies like Google and Mozilla.
+No seed data is provided, so you’ll need to create your own data using Insomnia after you’ve created your API.
 
-You will deploy this full-stack application to Render using the [Render Deployment Guide on The Full-Stack Blog](https://coding-boot-camp.github.io/full-stack/render/render-deployment-guide).
-
-**Important**: Make sure your submission includes the `.npmrc` file in this starter code.  This will ensure your application will deploy properly to Render.
+Because this application won’t be deployed, you’ll also need to create a walkthrough video that demonstrates its functionality and all of the following acceptance criteria being met. You’ll need to submit a link to the video and add it to the README of your project.
 
 ## User Story
 
 ```md
-AS A developer
-I WANT to create notes or code snippets with or without an internet connection
-SO THAT I can reliably retrieve them for later use
+AS A social media startup
+I WANT an API for my social network that uses a NoSQL database
+SO THAT my website can handle large amounts of unstructured data
 ```
 
 ## Acceptance Criteria
 
 ```md
-GIVEN a text editor web application
-WHEN I open my application in my editor
-THEN I should see a client server folder structure
-WHEN I run `npm run start` from the root directory
-THEN I find that my application should start up the backend and serve the client
-WHEN I run the text editor application from my terminal
-THEN I find that my JavaScript files have been bundled using webpack
-WHEN I run my webpack plugins
-THEN I find that I have a generated HTML file, service worker, and a manifest file
-WHEN I use next-gen JavaScript in my application
-THEN I find that the text editor still functions in the browser without errors
-WHEN I open the text editor
-THEN I find that IndexedDB has immediately created a database storage
-WHEN I enter content and subsequently click off of the DOM window
-THEN I find that the content in the text editor has been saved with IndexedDB
-WHEN I reopen the text editor after closing it
-THEN I find that the content in the text editor has been retrieved from our IndexedDB
-WHEN I click on the Install button
-THEN I download my web application as an icon on my desktop
-WHEN I load my web application
-THEN I should have a registered service worker using workbox
-WHEN I register a service worker
-THEN I should have my static assets pre cached upon loading along with subsequent pages and static assets
-WHEN I deploy to Render
-THEN I should have proper build scripts for a webpack application
+GIVEN a social network API
+WHEN I enter the command to invoke the application
+THEN my server is started and the Mongoose models are synced to the MongoDB database
+WHEN I open API GET routes in Insomnia for users and thoughts
+THEN the data for each of these routes is displayed in a formatted JSON
+WHEN I test API POST, PUT, and DELETE routes in Insomnia
+THEN I am able to successfully create, update, and delete users and thoughts in my database
+WHEN I test API POST and DELETE routes in Insomnia
+THEN I am able to successfully create and delete reactions to thoughts and add and remove friends to a user’s friend list
+```
+
+## Mock Up
+
+The following animations show examples of the application's API routes being tested in Insomnia.
+
+The following animation shows GET routes to return all users and all thoughts being tested in Insomnia:
+
+![Demo of GET routes to return all users and all thoughts being tested in Insomnia.](./Assets/18-nosql-homework-demo-01.gif)
+
+The following animation shows GET routes to return a single user and a single thought being tested in Insomnia:
+
+![Demo that shows GET routes to return a single user and a single thought being tested in Insomnia.](./Assets/18-nosql-homework-demo-02.gif)
+
+The following animation shows the POST, PUT, and DELETE routes for users being tested in Insomnia:
+
+![Demo that shows the POST, PUT, and DELETE routes for users being tested in Insomnia.](./Assets/18-nosql-homework-demo-03.gif)
+
+In addition to this, your walkthrough video should show the POST, PUT, and DELETE routes for thoughts being tested in Insomnia.
+
+The following animation shows the POST and DELETE routes for a user’s friend list being tested in Insomnia:
+
+![Demo that shows the POST and DELETE routes for a user’s friend list being tested in Insomnia.](./Assets/18-nosql-homework-demo-04.gif)
+
+In addition to this, your walkthrough video should show the POST and DELETE routes for reactions to thoughts being tested in Insomnia.
+
+## Getting Started
+
+Be sure to have MongoDB installed on your machine. Follow the [MongoDB installation guide on The Full-Stack Blog](https://coding-boot-camp.github.io/full-stack/mongodb/how-to-install-mongodb) to install MongoDB locally.
+
+Use the following guidelines to set up your models and API routes:
+
+### Models
+
+**User**:
+
+* `username`
+  * String
+  * Unique
+  * Required
+  * Trimmed
+
+* `email`
+  * String
+  * Required
+  * Unique
+  * Must match a valid email address (look into Mongoose's matching validation)
+
+* `thoughts`
+  * Array of `_id` values referencing the `Thought` model
+
+* `friends`
+  * Array of `_id` values referencing the `User` model (self-reference)
+
+**Schema Settings**:
+
+Create a virtual called `friendCount` that retrieves the length of the user's `friends` array field on query.
+
+---
+
+**Thought**:
+
+* `thoughtText`
+  * String
+  * Required
+  * Must be between 1 and 280 characters
+
+* `createdAt`
+  * Date
+  * Set default value to the current timestamp
+  * Use a getter method to format the timestamp on query
+
+* `username` (The user that created this thought)
+  * String
+  * Required
+
+* `reactions` (These are like replies)
+  * Array of nested documents created with the `reactionSchema`
+
+**Schema Settings**:
+
+Create a virtual called `reactionCount` that retrieves the length of the thought's `reactions` array field on query.
+
+---
+
+**Reaction** (SCHEMA ONLY)
+
+* `reactionId`
+  * Use Mongoose's ObjectId data type
+  * Default value is set to a new ObjectId
+
+* `reactionBody`
+  * String
+  * Required
+  * 280 character maximum
+
+* `username`
+  * String
+  * Required
+
+* `createdAt`
+  * Date
+  * Set default value to the current timestamp
+  * Use a getter method to format the timestamp on query
+
+**Schema Settings**:
+
+This will not be a model, but rather will be used as the `reaction` field's subdocument schema in the `Thought` model.
+
+### API Routes
+
+**`/api/users`**
+
+* `GET` all users
+
+* `GET` a single user by its `_id` and populated thought and friend data
+
+* `POST` a new user:
+
+```json
+// example data
+{
+  "username": "lernantino",
+  "email": "lernantino@gmail.com"
+}
+```
+
+* `PUT` to update a user by its `_id`
+
+* `DELETE` to remove user by its `_id`
+
+**BONUS**: Remove a user's associated thoughts when deleted.
+
+---
+
+**`/api/users/:userId/friends/:friendId`**
+
+* `POST` to add a new friend to a user's friend list
+
+* `DELETE` to remove a friend from a user's friend list
+
+---
+
+**`/api/thoughts`**
+
+* `GET` to get all thoughts
+
+* `GET` to get a single thought by its `_id`
+
+* `POST` to create a new thought (don't forget to push the created thought's `_id` to the associated user's `thoughts` array field)
+
+```json
+// example data
+{
+  "thoughtText": "Here's a cool thought...",
+  "username": "lernantino",
+  "userId": "5edff358a0fcb779aa7b118b"
+}
+```
+
+* `PUT` to update a thought by its `_id`
+
+* `DELETE` to remove a thought by its `_id`
+
+---
+
+**`/api/thoughts/:thoughtId/reactions`**
+
+* `POST` to create a reaction stored in a single thought's `reactions` array field
+
+* `DELETE` to pull and remove a reaction by the reaction's `reactionId` value
