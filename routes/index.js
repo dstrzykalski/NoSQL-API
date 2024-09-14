@@ -1,7 +1,8 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const userRoutes = require('./routes/userRoutes');
-const thoughtRoutes = require('./routes/thoughtRoutes');
+const router = require('express').Router();
+const apiRoutes = require('./api');
 
-const app = express();
-const PORT = process.env.PORT || 3001;
+router.use('/api', apiRoutes);
+
+router.use((req, res) => res.send('Try Another Route with API'));
+
+module.exports = router;
